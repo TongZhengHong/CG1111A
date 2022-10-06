@@ -1,3 +1,11 @@
+void displayColor() {
+  
+}
+
+void checkpointSound() {
+  
+}
+
 void celebrate() {
   buzzer.tone(523, 200);
   buzzer.tone(659, 200);

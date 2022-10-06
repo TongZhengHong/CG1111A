@@ -1,22 +1,22 @@
-void move_forward() {
+void moveFoward() {
   leftMotor.run(-FORWARD_SPEED); // Stop left motor 
   rightMotor.run(FORWARD_SPEED); // Stop right motor
   delay(100);
 }
 
-void turn_left() {
+void turnLeft() {
   leftMotor.run(FORWARD_SPEED); // Stop left motor 
   rightMotor.run(FORWARD_SPEED); // Stop right motor
   delay(100);
 }
 
-void turn_right() {
+void turnRight() {
   leftMotor.run(-FORWARD_SPEED); // Stop left motor 
   rightMotor.run(-FORWARD_SPEED); // Stop right motor
   delay(100);
 }
 
-void stop_moving() {
+void stopMoving() {
   leftMotor.stop(); // Stop left motor 
   rightMotor.stop(); // Stop right motor
   delay(100);

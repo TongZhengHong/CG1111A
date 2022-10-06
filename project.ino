@@ -1,5 +1,9 @@
 #include <MeMCore.h>
 
+#define DEBUG_ULTRASOUND
+#define DEBUG_INFRARED
+#define DEBUG_COLOR
+
 #define TURNING_TIME_MS 300
 #define FORWARD_SPEED 255
 #define TURNING_SPEED 20

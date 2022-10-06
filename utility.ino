@@ -1,11 +1,11 @@
-void check_right_wall() {
+void checkRightWall() {
   
 }
 
-void check_left_wall() {
+void checkLeftWall() {
   
 }
 
-void solve_challenge() {
+void solveChallenge() {
   
 }
