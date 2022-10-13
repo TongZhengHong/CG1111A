@@ -1,8 +1,8 @@
-void displayColor() {
+void display_color() {
   
 }
 
-void checkpointSound() {
+void checkpoint_sound() {
   
 }
 

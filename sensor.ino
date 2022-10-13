@@ -4,14 +4,14 @@
 #define ULTRASONIC 12
 
 enum color {
-  RED, GREEN, ORANGE, PURPLE, BLUE, WHITE 
+  C_RED, C_GREEN, C_ORANGE, C_PURPLE, C_BLUE, C_WHITE 
 };
 
-int getUltrasonicDistance() {
+float get_ultrasonic_distance() {
   pinMode(ULTRASONIC, OUTPUT);
   
   digitalWrite(ULTRASONIC, LOW); 
-  delayMicroseconds(2); 
+  delayMicroseconds(10); 
   digitalWrite(ULTRASONIC, HIGH); 
   delayMicroseconds(10); 
   digitalWrite(ULTRASONIC, LOW);
@@ -20,10 +20,10 @@ int getUltrasonicDistance() {
   long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT); // microseconds
 
   // m -> cm ( * 100) and microsecond -> second ( / 1000000)
-  double conversion = 100 / 1000000; 
-  int distance_cm = duration * SPEED_OF_SOUND * 0.5 * conversion;
+  float conversion = 100.0 / 1000000.0; 
+  float distance_cm = duration * SPEED_OF_SOUND * 0.5 * conversion;
 
-#ifndef DEBUG_ULTRASONIC
+#ifdef DEBUG_ULTRASONIC
   Serial.print("Ultrasonic distance: ");
   Serial.print(distance_cm);
   Serial.println(" cm");
@@ -32,11 +32,11 @@ int getUltrasonicDistance() {
   return distance_cm;
 }
 
-int getInfraredDistance() {
+int get_infrared_distance() {
   return 0;
 }
 
-bool hasReachedWaypoint() {
-  int sensorState = lineFinder.readSensors();
-  return sensorState == S1_OUT_S2_OUT;
+bool has_reached_waypoint() {
+  int sensor_state = line_finder.readSensors();
+  return sensor_state == S1_OUT_S2_OUT;
 }
