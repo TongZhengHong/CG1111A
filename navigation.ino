@@ -40,7 +40,7 @@ float calculate_pid() {
   if (pid_output > PID_MAX_OUTPUT) pid_output = PID_MAX_OUTPUT;
   else if (pid_output < PID_MAX_OUTPUT * -1) pid_output = PID_MAX_OUTPUT * -1;
 
-#ifdef DEBUG_PID
+#ifndef DEBUG_PID
   Serial.print("PID Output: ");
   Serial.println(pid_output);
 #endif
