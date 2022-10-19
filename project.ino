@@ -29,7 +29,7 @@ float PID_P_GAIN = 25.0;
 float PID_I_GAIN = 0.005;
 float PID_D_GAIN = 500.0;
 
-float PID_SETPOINT = 8.0;
+float PID_SETPOINT = 10.0;
 float PID_MAX_I = 15.0;
 float PID_MAX_OUTPUT = 50.0;
 
@@ -52,13 +52,13 @@ int colorsArray[5][3] = {
 int currentColor[3] = {0,0,0};
 
 enum Color {
-  C_RED, C_GREEN, C_ORANGE, C_PURPLE, C_BLUE
+  C_RED, C_GREEN, C_ORANGE, C_PURPLE, C_BLUE, C_WHITE
 };
 
 enum Motion {
   TURN_LEFT, TURN_RIGHT, U_TURN, TWO_LEFT, TWO_RIGHT, CHALLENGE, FORWARD
 };
-Motion state = CHALLENGE; // FORWARD
+Motion state = CHALLENGE; 
 
 void setup() {
   Serial.begin(9600);
@@ -87,27 +87,34 @@ void loop() {
 //    }
     
   } else if (state == CHALLENGE) {
-    int predictedColor = read_color_sensor();
-    display_color(predictedColor);
+    read_color_sensor(); // Updates currentColor[3] with R,G,B values
+    int predictedColor = match_color();
+    display_color(predictedColor); 
 
-    if (predictedColor > 0)
-      state = static_cast<Motion>(predictedColor);
+//    if (predictedColor == C_WHITE) {
+//      stop_moving();
+//      celebrate();
+//    } else state = static_cast<Motion>(predictedColor);
     
   } else if (state == TURN_LEFT) {
-    
+    Serial.println("TURN LEFT");
+    delay(2000);
     
   } else if (state == TURN_RIGHT) {
-
+    Serial.println("TURN RIGHT");
+    delay(2000);
     
   } else if (state == U_TURN) {
-
+    Serial.println("U-TURN");
+    delay(2000);
     
   } else if (state == TWO_LEFT) {
-
+    Serial.println("2 LEFT");
+    delay(2000);    
     
   } else if (state == TWO_RIGHT) {
-
-
+    Serial.println("2 RIGHT");
+    delay(2000);
   } 
   
   delay(10);

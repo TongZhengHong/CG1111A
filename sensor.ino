@@ -41,7 +41,7 @@ int ledPins[3][2] = {
 #define LDRWait 10
 #define AVG_READING 5
 
-int read_color_sensor() {
+void read_color_sensor() {
   for (int c = 0; c < 3; c++) {
     digitalWrite(A0, ledPins[c][0]);
     digitalWrite(A1, ledPins[c][1]);
@@ -56,26 +56,13 @@ int read_color_sensor() {
     }
 
     currentColor[c] =  total / AVG_READING;
-    currentColor[c] = (currentColor[c] - balanceArray[BLACK][c]) / balanceArray[GREY][c] * 255;
+    currentColor[c] = ((float) (currentColor[c] - balanceArray[BLACK][c])) / ((float) balanceArray[GREY][c]) * 255.0;
 
     digitalWrite(A0, LOW);
     digitalWrite(A1, LOW);
     delay(RGBWait);
   }
-
-  // Check with color ranges 
-  int range = 25, predictedColor = -1;
-  for (int j = 0; j < 5; j++) {
-    bool redCheck = (colorsArray[j][R] - range > currentColor[R]) and (currentColor[R] < colorsArray[j][R] + range);
-    bool greenCheck = (colorsArray[j][G] - range > currentColor[G]) and (currentColor[G] < colorsArray[j][G] + range);
-    bool blueCheck = (colorsArray[j][B] - range > currentColor[B]) and (currentColor[B] < colorsArray[j][B] + range);
-
-    if (redCheck and greenCheck and blueCheck) {
-      predictedColor = j;
-      break;
-    }
-  }
-
+  
 #ifndef DEBUG_COLOR
   Serial.print("Current color: ");
   for (int i = 0; i < 3; i++) {
@@ -83,13 +70,7 @@ int read_color_sensor() {
     Serial.print(" ");
   }
   Serial.println("");
-
-  Serial.print("Predicted color: ");
-  Serial.print(predictedColor);
-  Serial.println("");
 #endif 
-
-  return predictedColor;
 }
 
 int get_infrared_distance() {
@@ -98,5 +79,5 @@ int get_infrared_distance() {
 
 bool has_reached_waypoint() {
   int sensor_state = line_finder.readSensors();
-  return sensor_state == S1_OUT_S2_OUT;
+  return sensor_state == S1_IN_S2_IN;
 }
