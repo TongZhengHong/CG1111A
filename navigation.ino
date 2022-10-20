@@ -1,4 +1,4 @@
-void move_foward() {
+void move_forward() {
   left_motor.run(-LEFT_FORWARD_SPEED); 
   right_motor.run(RIGHT_FORWARD_SPEED); 
 }
@@ -9,19 +9,18 @@ void move_forward_correction(int correction) {
 }
 
 void turn_left() {
-  left_motor.run(LEFT_FORWARD_SPEED); 
-  right_motor.run(RIGHT_FORWARD_SPEED); 
+  left_motor.run(TURN_LEFT_SPEED); 
+  right_motor.run(TURN_RIGHT_SPEED); 
 }
 
 void turn_right() {
-  left_motor.run(-LEFT_FORWARD_SPEED); 
-  right_motor.run(-RIGHT_FORWARD_SPEED); 
+  left_motor.run(-TURN_LEFT_SPEED); 
+  right_motor.run(-TURN_RIGHT_SPEED); 
 }
 
 void stop_moving() {
   left_motor.stop(); 
   right_motor.stop(); 
-  delay(10);
 }
 
 float calculate_pid() {

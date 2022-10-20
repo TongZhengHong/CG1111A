@@ -14,7 +14,15 @@ void display_color(int c) {
 }
 
 void checkpoint_sound() {
-  
+  buzzer.tone(262, 250);
+  buzzer.tone(196, 125);
+  buzzer.tone(196, 125);
+  buzzer.tone(220, 250);
+  buzzer.tone(196, 250);
+  buzzer.tone(0, 250);
+  buzzer.tone(247, 250);
+  buzzer.tone(262, 250);
+  buzzer.noTone();
 }
 
 void celebrate() {

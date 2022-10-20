@@ -1,6 +1,6 @@
 #define RED_THESHOLD 170 // Absolute raw ldr value
-#define RED_ORANGE_THRESHOLD 1.2 // Ratio of R to G
-#define PURPLE_BLUEGREEN_THRESHOLD 0.6 // Ratio of R to G
+#define RED_ORANGE_THRESHOLD 1.5 // Ratio of R to G = 2.2
+#define PURPLE_BLUEGREEN_THRESHOLD 0.6 // Ratio of R to G = 1.6
 #define WHITE_THRESHOLD 200
 
 int match_color() {
