@@ -2,17 +2,19 @@
 #include <MeMCore.h>
 
 #define DEBUG_ULTRASONIC
+#define DEBUG_FILTER
+#define DEBUG_DETECT_WALL
 #define DEBUG_INFRARED
 #define DEBUG_COLOR
 #define DEBUG_PID
 
-#define LEFT_FORWARD_SPEED 150
-#define RIGHT_FORWARD_SPEED 200
+#define LEFT_FORWARD_SPEED 200
+#define RIGHT_FORWARD_SPEED 180
 
-#define TURN_LEFT_SPEED 200
-#define TURN_RIGHT_SPEED 200
-#define TURN_TIME_MS 375
-#define UTURN_TIME_MS 700
+#define TURN_LEFT_SPEED 125
+#define TURN_RIGHT_SPEED 125
+#define TURN_TIME_MS 700
+#define UTURN_TIME_MS 1250
 #define STRAIGHT_TIME_MS 1000
 
 #define WHITE 0
@@ -23,13 +25,16 @@
 #define G 1
 #define B 2
 
+#define D1 A2
+#define D2 A3
+
 MeBuzzer buzzer;
 MeRGBLed RGBled(0,30);
 MeDCMotor left_motor(M1);
 MeDCMotor right_motor(M2);
 MeLineFollower line_finder(PORT_2);
 
-float PID_P_GAIN = 25.0;
+float PID_P_GAIN = 30.0;
 float PID_I_GAIN = 0.0;
 float PID_D_GAIN = 150.0;
 
@@ -37,7 +42,7 @@ float PID_SETPOINT = 10.0;
 float PID_MAX_I = 15.0;
 float PID_MAX_OUTPUT = 50.0;
 
-float pid_i_mem = 0, prev_pid_error = 0;
+float pid_i_mem = 0.0, prev_pid_error = 0.0;
 
 int balanceArray[3][3] = {
   {0, 0, 0}, // WHITE
@@ -75,16 +80,14 @@ void setup() {
   Serial.begin(9600);
   RGBled.setpin(13);
   
-  pinMode(A0, OUTPUT);
-  pinMode(A1, OUTPUT);
+  pinMode(D1, OUTPUT);
+  pinMode(D2, OUTPUT);
 
   read_eeprom();
   
 //  celebrate();
   delay(1000);
-
-  // Start moving robot forward to get going
-  move_forward();
+  start_turn_time = millis();
 }
 
 void loop() {
@@ -98,23 +101,36 @@ void loop() {
     }
     
   } else if (state == CHALLENGE) {
-    for (int i = 0; i < 3; i++) 
-      read_color_sensor(); // Updates currentColor[3] with R,G,B values
+    read_color_sensor(); // Updates currentColor[3] with R,G,B values
+    int predicted_color = match_color();
     
-    int predictedColor = match_color();
-    display_color(predictedColor); 
+    read_color_sensor(); // Updates currentColor[3] with R,G,B values
+    int second_color = match_color();
+    
+    if (predicted_color != second_color) {
+      read_color_sensor(); // Updates currentColor[3] with R,G,B values
+      predicted_color = match_color();
+    }
+
+//    read_color_sensor(); // Updates currentColor[3] with R,G,B values
+//    int predicted_color = match_color();
+    
+    display_color(predicted_color); 
 //    checkpoint_sound();
 
-    if (predictedColor == C_WHITE) {
+    if (predicted_color == C_WHITE) {
       stop_moving();
       celebrate();
     } else {
-      state = static_cast<Motion>(predictedColor);
+      state = static_cast<Motion>(predicted_color);
       start_turn_time = millis(); // Set start time of turn
     }
     
   } else if (state == TURN_LEFT or state == TURN_RIGHT) {
-    if (millis() - start_turn_time < TURN_TIME_MS) {
+    bool within_time = millis() - start_turn_time < TURN_TIME_MS;
+    bool not_close_to_wall = (millis() - start_turn_time > (float) TURN_TIME_MS*0.5) and not is_close_to_wall(state);
+    
+    if (within_time and true) {
       if (state == TURN_LEFT) turn_left();
       else if (state == TURN_RIGHT) turn_right();
       
@@ -124,7 +140,10 @@ void loop() {
     }
     
   } else if (state == U_TURN) {
-    if (millis() - start_turn_time < UTURN_TIME_MS)
+    bool within_time = millis() - start_turn_time < UTURN_TIME_MS;
+    bool not_close_to_wall = (millis() - start_turn_time > (TURN_TIME_MS*0.75)) and not is_close_to_wall(state);
+    
+    if (within_time and true) 
       turn_left();
     else {
       stop_moving();
@@ -133,7 +152,10 @@ void loop() {
     
   } else if (state == TWO_LEFT or state == TWO_RIGHT) {
     if (turn_stage == FIRST_TURN) {
-      if (millis() - start_turn_time < TURN_TIME_MS) {
+      bool within_time = millis() - start_turn_time < TURN_TIME_MS;
+//      bool not_close_to_wall = (millis() - start_turn_time > (TURN_TIME_MS*0.5)) and not is_close_to_wall(state);
+      
+      if (within_time and true) {
         if (state == TWO_LEFT) turn_left();
         else if (state == TWO_RIGHT) turn_right();
         
@@ -145,8 +167,9 @@ void loop() {
       
     } else if (turn_stage == STRAIGHT) {
       if (millis() - start_turn_time < STRAIGHT_TIME_MS) {
-        float correction = calculate_pid();
-        move_forward_correction((int) correction);
+        move_forward();
+//        float correction = calculate_pid();
+//        move_forward_correction((int) correction);
         
       } else {
         stop_moving();
@@ -155,13 +178,17 @@ void loop() {
       }
       
     } else if (turn_stage == SECOND_TURN) {
-      if (millis() - start_turn_time < TURN_TIME_MS) {
+      bool within_time = millis() - start_turn_time < TURN_TIME_MS;
+      bool not_close_to_wall = (millis() - start_turn_time > (TURN_TIME_MS*0.5)) and not is_close_to_wall(state);
+      
+      if (within_time and true) {
         if (state == TWO_LEFT) turn_left();
         else if (state == TWO_RIGHT) turn_right();
         
       } else {
         stop_moving();
         state = FORWARD;
+        turn_stage == FIRST_TURN;
       }
     }
   }

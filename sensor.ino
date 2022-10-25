@@ -20,31 +20,32 @@ float get_ultrasonic_distance() {
   float distance_cm = duration * SPEED_OF_SOUND * 0.5 * conversion;
 
 #ifndef DEBUG_ULTRASONIC
-  Serial.print("Ultrasonic distance: ");
+  Serial.print("Raw distance: ");
   Serial.print(distance_cm);
-  Serial.println(" cm");
+  Serial.println("");
 #endif
 
   return distance_cm;
 }
 
-int ledPins[3][2] = {
+int ledPins[4][2] = {
   { HIGH, HIGH },   // Red LED
-  { HIGH, LOW },    // Green LED
-  { LOW, HIGH }     // Blue LED
+  { LOW, HIGH },    // Green LED
+  { HIGH, LOW },    // Blue LED
+  { LOW, LOW }      // None
 };
 
-#define LDR 3
+#define LDR 0
 #define LED 13
 
-#define RGBWait 200
+#define RGBWait 300
 #define LDRWait 10
 #define AVG_READING 5
 
 void read_color_sensor() {
   for (int c = 0; c < 3; c++) {
-    digitalWrite(A0, ledPins[c][0]);
-    digitalWrite(A1, ledPins[c][1]);
+    digitalWrite(D1, ledPins[c][0]);
+    digitalWrite(D2, ledPins[c][1]);
     delay(RGBWait);
 
     // Get average LDR reading
@@ -58,8 +59,8 @@ void read_color_sensor() {
     currentColor[c] =  total / AVG_READING;
     currentColor[c] = ((float) (currentColor[c] - balanceArray[BLACK][c])) / ((float) balanceArray[GREY][c]) * 255.0;
 
-    digitalWrite(A0, LOW);
-    digitalWrite(A1, LOW);
+    digitalWrite(D1, LOW);
+    digitalWrite(D2, LOW);
     delay(RGBWait);
   }
   
@@ -73,7 +74,18 @@ void read_color_sensor() {
 #endif 
 }
 
+#define IR 1
+
 int get_infrared_distance() {
+  // Get average LDR reading
+  int total = 0;
+  for (int i = 0; i < AVG_READING; i++) {
+    int reading = analogRead(IR);
+    total += reading;
+    delay(10);
+  }
+  total /= AVG_READING;
+  
   return 0;
 }
 
