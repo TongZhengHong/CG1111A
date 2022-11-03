@@ -1,5 +1,4 @@
 void display_color(int c) {
-  
   int ledColors[6][3] = {
     {255, 0, 0},    // RED
     {0, 255, 0},    // GREEN

@@ -1,6 +1,5 @@
 #define TIMEOUT 2000 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // metres per second
-
 #define ULTRASONIC 12
 
 float get_ultrasonic_distance() {
@@ -36,9 +35,7 @@ int ledPins[4][2] = {
 };
 
 #define LDR 0
-#define LED 13
-
-#define RGBWait 300
+#define RGBWait 100
 #define LDRWait 10
 #define AVG_READING 5
 
@@ -57,7 +54,8 @@ void read_color_sensor() {
     }
 
     currentColor[c] =  total / AVG_READING;
-    currentColor[c] = ((float) (currentColor[c] - balanceArray[BLACK][c])) / ((float) balanceArray[GREY][c]) * 255.0;
+    currentColor[c] = ((float) (currentColor[c] - balanceArray[black][c])) / ((float) balanceArray[grey][c]) * 255.0;
+    if (currentColor[c] < 0) currentColor[c] = 1;
 
     digitalWrite(D1, LOW);
     digitalWrite(D2, LOW);
@@ -75,7 +73,6 @@ void read_color_sensor() {
 }
 
 #define IR 1
-
 int get_infrared_distance() {
   // Get average LDR reading
   int total = 0;
