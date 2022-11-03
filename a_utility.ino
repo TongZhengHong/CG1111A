@@ -1,30 +1,28 @@
-#define RED_THESHOLD 170 // Absolute raw ldr value
-#define RED_ORANGE_THRESHOLD 2.8 // Ratio of R to G = 2.8
-#define PURPLE_BLUEGREEN_THRESHOLD 1.6 // Ratio of R to G = 1.6
+#define RED_THRESHOLD 200 // Raw RED threshold 
+#define RED_ORANGE_THRESHOLD 110 // Raw GREEN threshold to differentiate b/w red and orange
+#define PURPLE_GREENBLUE_THRESHOLD 1.2 // Ratio of red and green to differentiate b/w purple and green/blue
 #define WHITE_THRESHOLD 200
 
 int match_color() {
   int red = currentColor[R], green = currentColor[G], blue = currentColor[B];
   if (red > WHITE_THRESHOLD and green > WHITE_THRESHOLD and blue > WHITE_THRESHOLD) return C_WHITE;
   
-  if (red > RED_THESHOLD) { // Either RED or ORANGE
-    float small = min(red, green);
-    float large = max(red, green);
-    float diffGreenRed = large / small;
-
-    if (abs(diffGreenRed) > RED_ORANGE_THRESHOLD) return C_RED;
-    else return C_ORANGE;
+  if (red > RED_THRESHOLD) { // Either RED or ORANGE
+    if (green > RED_ORANGE_THRESHOLD) return C_ORANGE;
+    else return C_RED;
     
   } else {
     float small = min(red, green);
     float large = max(red, green);
+    if (small <= 0) small = 1; // Handle division by 0
     float diffGreenRed = large / small;
 
-    if (abs(diffGreenRed) > PURPLE_BLUEGREEN_THRESHOLD) {
+    if (red >= green or abs(diffGreenRed) < PURPLE_GREENBLUE_THRESHOLD) 
+      return C_PURPLE;
+    else {
       if (green > blue) return C_GREEN;
       else return C_BLUE;
-      
-    } else return C_PURPLE;
+    }
   }
 }
 
@@ -35,7 +33,7 @@ float prev_signal = 0.0;
 float apply_low_pass_filter(float distance_cm) {
   float filtered_signal;
 
-  if (abs(distance_cm - prev_signal) < initial_threshold) filtered_signal = distance_cm;
+  if (abs(distance_cm - prev_signal) > initial_threshold) filtered_signal = distance_cm;
   else filtered_signal = (1-low_pass_alpha) * prev_signal + (low_pass_alpha * distance_cm);
   
 #ifndef DEBUG_FILTER
@@ -61,18 +59,6 @@ void read_eeprom() {
     }
     Serial.println("");
   }
-
-//  Serial.println("Retrieving color values from EEPROM...");
-//  for (int i = 0; i < 5; i++) {
-//    for (int c = 0; c < 3; c++) {
-//      EEPROM.get(eeAddress, colorsArray[i][c]);
-//      eeAddress += sizeof(int);
-//
-//      Serial.print(colorsArray[i][c]);
-//      Serial.print(",");
-//    }
-//    Serial.println("");
-//  }
   
   char firstCheck = EEPROM.read(eeAddress); 
   char secondCheck = EEPROM.read(eeAddress + 1);
