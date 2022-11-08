@@ -1,11 +1,11 @@
 void move_forward() {
-  left_motor.run(-FORWARD_SPEED);
-  right_motor.run(FORWARD_SPEED);
+  left_motor.run(-FORWARD_SPEED + LEFT_DEVIATION);
+  right_motor.run(FORWARD_SPEED - RIGHT_DEVIATION);
 }
 
 void move_forward_correction(int correction) {
-  left_motor.run(-FORWARD_SPEED + LEFT_DEVIATION - correction);
-  right_motor.run(FORWARD_SPEED - RIGHT_DEVIATION - correction);
+  left_motor.run(-FORWARD_SPEED - correction);
+  right_motor.run(FORWARD_SPEED - correction);
 }
 
 void turn_left() {
@@ -27,10 +27,10 @@ float calculate_pid() {
   float wall_dist = get_ultrasonic_distance();
   float filtered_dist = apply_low_pass_filter(wall_dist);
 
-  // If wall is not present, return 0
+  // If wall is not present, return -1
   if (wall_dist == 0.0 or wall_dist > PID_SETPOINT * 1.5) {
     pid_i_mem = 0.0; prev_pid_error = 0.0;
-    return 0.0;
+    return -1;
   }
 
   float pid_error = filtered_dist - PID_SETPOINT; // Calculate PID error
@@ -52,16 +52,29 @@ float calculate_pid() {
 }
 
 void turn_left_time(int duration) {
+  move_forward();
+  delay(TURN_CORRECTION_TIME_MS);
+  
   turn_left();
   delay(duration);
 
   stop_moving();
   global_state = FORWARD;
-
 }
 
 void turn_right_time(int duration) {
+  move_forward();
+  delay(TURN_CORRECTION_TIME_MS);
+  
   turn_right();
+  delay(duration);
+
+  stop_moving();
+  global_state = FORWARD;
+}
+
+void uturn_time(int duration) {
+  turn_left();
   delay(duration);
 
   stop_moving();
@@ -71,7 +84,7 @@ void turn_right_time(int duration) {
 void compound_turn_left() {
   // First turn
   turn_left();
-  delay(TURN_LEFT_TIME_MS);
+  delay(TWO_LEFT_TURN_TIME_MS);
 
   // Move forward
   stop_moving();
@@ -81,7 +94,7 @@ void compound_turn_left() {
 
   // Second turn
   turn_left();
-  delay(TURN_LEFT_TIME_MS);
+  delay(TWO_LEFT_TURN_TIME_MS);
 
   stop_moving();
   global_state = FORWARD;
@@ -90,7 +103,7 @@ void compound_turn_left() {
 void compound_turn_right() {
   // First turn
   turn_right();
-  delay(TURN_RIGHT_TIME_MS);
+  delay(TWO_RIGHT_TURN_TIME_MS);
 
   // Move forward
   stop_moving();
@@ -100,19 +113,8 @@ void compound_turn_right() {
   
   // Second turn
   turn_right();
-  delay(TURN_RIGHT_TIME_MS);
+  delay(TWO_RIGHT_TURN_TIME_MS);
 
   stop_moving();
   global_state = FORWARD;
 }
-
-// Can consider using???
-//void extra_turn_correction() {
-//  if (get_ultrasonic_distance() < PID_SETPOINT * 1.5) 
-//    return; // Wall detected!
-//
-//  checkpoint_sound();
-//  turn_right(); // Turn RIGHT for ultrasonic to be closer to wall
-//  delay(EXTRA_TURN_TIME_MS);
-//  stop_moving();
-//}
