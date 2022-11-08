@@ -1,3 +1,8 @@
+/*
+  d_sensor.ino: take in values from sensors & output readings to be used for navigation & colour sensing
+*/
+
+/*Ultrasonic Sensor*/
 #define TIMEOUT 2000 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // metres per second
 #define ULTRASONIC 12
@@ -27,25 +32,25 @@ float get_ultrasonic_distance() {
   return distance_cm;
 }
 
-int ledPins[4][2] = {
+/*Colour Sensor*/
+int ledPins[4][2] = { // logic gate for LED pins
   { HIGH, HIGH },   // Red LED
   { LOW, HIGH },    // Green LED
   { HIGH, LOW },    // Blue LED
-  { LOW, LOW }      // None
+  { LOW, LOW }      // IR sensor
 };
-
 #define LDR 0
 #define RGBWait 100
 #define LDRWait 10
-#define AVG_READING 5
+#define AVG_READING 5   // capped at 5 to prevent "over-exposure" of LDR, leading to high RGB values, anything less may result in "under-exposure" -> low RGB values
 
-void read_color_sensor() {
-  for (int c = 0; c < 3; c++) {
+void read_color_sensor() { 
+  for (int c = 0; c < 3; c++) {   // Take 3 readings of R, G & B 
     digitalWrite(D1, ledPins[c][0]);
     digitalWrite(D2, ledPins[c][1]);
     delay(RGBWait);
 
-    // Get average LDR reading
+    // Get average LDR reading; 
     int total = 0;
     for (int i = 0; i < AVG_READING; i++) {
       int reading = analogRead(LDR);
@@ -55,7 +60,7 @@ void read_color_sensor() {
 
     currentColor[c] =  total / AVG_READING;
     currentColor[c] = ((float) (currentColor[c] - balanceArray[black][c])) / ((float) balanceArray[grey][c]) * 255.0;
-    if (currentColor[c] < 0) currentColor[c] = 1;
+    if (currentColor[c] < 0) currentColor[c] = 1; // prevents a negative reading
 
     digitalWrite(D1, LOW);
     digitalWrite(D2, LOW);
@@ -72,6 +77,7 @@ void read_color_sensor() {
 #endif 
 }
 
+/*IR Sensor*/
 #define IR 1
 int get_infrared_distance() {
   // Get average LDR reading

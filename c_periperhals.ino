@@ -1,3 +1,7 @@
+/*
+  Periperhals: buzzer sound & on-board arduino display colour
+*/
+
 void display_color(int c) {
   int ledColors[6][3] = {
     {255, 0, 0},    // RED
@@ -9,9 +13,10 @@ void display_color(int c) {
   };
 
   RGBled.setColor(ledColors[c][R], ledColors[c][G], ledColors[c][B]);
-  RGBled.show();
+  RGBled.show();  // show colours on-board arduino
 }
 
+/*TODO: Buzzer 5 marks!*/
 void checkpoint_sound() {
   buzzer.tone(262, 250);
   buzzer.tone(196, 125);
