@@ -1,5 +1,5 @@
 #define RED_THRESHOLD 200 // Raw RED threshold 
-#define RED_ORANGE_THRESHOLD 110 // Raw GREEN threshold to differentiate b/w red and orange
+#define RED_ORANGE_THRESHOLD 120 // Raw GREEN threshold to differentiate b/w red and orange
 #define PURPLE_GREENBLUE_THRESHOLD 1.2 // Ratio of red and green to differentiate b/w purple and green/blue
 #define WHITE_THRESHOLD 200
 
@@ -16,8 +16,9 @@ int match_color() {
     float large = max(red, green);
     if (small <= 0) small = 1; // Handle division by 0
     float diffGreenRed = large / small;
+    if (diffGreenRed < 0) diffGreenRed = -diffGreenRed;
 
-    if (red >= green or abs(diffGreenRed) < PURPLE_GREENBLUE_THRESHOLD) 
+    if (red >= green or diffGreenRed < PURPLE_GREENBLUE_THRESHOLD) 
       return C_PURPLE;
     else {
       if (green > blue) return C_GREEN;
