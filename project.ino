@@ -8,16 +8,18 @@
 #define DEBUG_PID
 
 #define FORWARD_SPEED 180 
-#define RIGHT_DEVIATION 0 
-#define LEFT_DEVIATION 0 //15
+#define RIGHT_DEVIATION 0
+#define LEFT_DEVIATION 15
 
 #define TURN_SPEED 125
 #define TURN_RIGHT_TIME_MS 625
 #define TURN_LEFT_TIME_MS 625
-#define UTURN_TIME_MS 1150
-#define STRAIGHT_RIGHT_TIME_MS 900
-#define STRAIGHT_LEFT_TIME_MS 1000
-#define EXTRA_TURN_TIME_MS 100
+#define TURN_CORRECTION_TIME_MS 100
+#define UTURN_TIME_MS 1125
+#define STRAIGHT_RIGHT_TIME_MS 975
+#define STRAIGHT_LEFT_TIME_MS 1100
+#define TWO_RIGHT_TURN_TIME_MS 630
+#define TWO_LEFT_TURN_TIME_MS 590
 
 #define D1 A2
 #define D2 A3
@@ -62,7 +64,7 @@ enum Color {
 };
 
 enum Motion {
-  TURN_LEFT, TURN_RIGHT, U_TURN, TWO_LEFT, TWO_RIGHT, CHALLENGE, FORWARD
+  TURN_LEFT, TURN_RIGHT, U_TURN, TWO_LEFT, TWO_RIGHT, CHALLENGE, FORWARD, FINISH
 };
 Motion global_state = FORWARD;
 
@@ -74,47 +76,45 @@ void setup() {
   pinMode(D2, OUTPUT);
 
   read_eeprom();
-
-  delay(1000);
 }
 
 void loop() {
   if (global_state == FORWARD) {
     float correction = calculate_pid();
-    move_forward_correction((int) correction);
+    if (correction == -1) move_forward(); // Applies deviation to the forward if no wall detected
+    else move_forward_correction((int) correction);
 
-//    if (has_reached_waypoint()) {
-//      stop_moving();
-//      global_state = CHALLENGE;
-//    }
+    if (has_reached_waypoint()) {
+      stop_moving();
+      global_state = CHALLENGE;
+    }
 
   } else if (global_state == CHALLENGE) {
     read_color_sensor(); // Updates currentColor[3] with R,G,B values
     int predicted_color = match_color();
     display_color(predicted_color);
 
-//    if (predicted_color == C_WHITE) {
-//      stop_moving();
-//      celebrate();
-//      global_state = 10; // Terminates program with undefined state
-//
-//    } else global_state = static_cast<Motion>(predicted_color);
+    if (predicted_color == C_WHITE) {
+      stop_moving();
+      celebrate();
+      global_state = FINISH; // Terminates program
 
-  } else if (global_state == TURN_LEFT) {
+    } else global_state = static_cast<Motion>(predicted_color);
+
+  } else if (global_state == TURN_LEFT) 
     turn_left_time(TURN_LEFT_TIME_MS);
 
-  } else if (global_state == TURN_RIGHT) {
+  else if (global_state == TURN_RIGHT) 
     turn_right_time(TURN_RIGHT_TIME_MS);
     
-  } else if (global_state == U_TURN) {
-    turn_left_time(UTURN_TIME_MS);  // Turn LEFT for U-turn
+  else if (global_state == U_TURN) 
+    uturn_time(UTURN_TIME_MS);  // Turn LEFT for U-turn
 
-  } else if (global_state == TWO_LEFT) {
+  else if (global_state == TWO_LEFT) 
     compound_turn_left();
     
-  } else if (global_state == TWO_RIGHT) {
+  else if (global_state == TWO_RIGHT) 
     compound_turn_right();
-  }
 
   delay(10);
 }
