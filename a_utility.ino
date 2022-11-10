@@ -2,9 +2,9 @@
   a_utility.ino: Colour matching algorithm, Low-pass filter for ultrasonic sensor & on-board eeprom to store calibrated colours
 */
 
-#define RED_THRESHOLD 200 // Raw RED threshold 
-#define RED_ORANGE_THRESHOLD 120 // Raw GREEN threshold to differentiate b/w red and orange
-#define PURPLE_GREENBLUE_THRESHOLD 1.2 // Ratio of red and green to differentiate b/w purple and green/blue
+#define RED_THRESHOLD 200                 // Raw RED threshold 
+#define RED_ORANGE_THRESHOLD 120          // Raw GREEN threshold to differentiate b/w red and orange
+#define PURPLE_GREENBLUE_THRESHOLD 1.2    // Ratio of red and green to differentiate b/w purple and green/blue
 #define WHITE_THRESHOLD 200
 
 int match_color() {
@@ -31,17 +31,16 @@ int match_color() {
   }
 }
 
-
-/*Applying low_pass to smoothen PID input*/
+/* Apply low_pass filter to smoothen PID input */
 float low_pass_alpha = 0.05;    // ...
-float initial_threshold = 3.0;  // to account for extreme changes in value
+float initial_threshold = 3.0;  // To account for extreme changes in value
 float prev_signal = 0.0; 
 
 float apply_low_pass_filter(float distance_cm) {
   float filtered_signal;
 
-  if (abs(distance_cm - prev_signal) > initial_threshold) filtered_signal = distance_cm;  // account for sudden change; when there's no wall use the raw value to avoid gradual correction of the filtered signal which may cause delay in input to PID
-  else filtered_signal = (1-low_pass_alpha) * prev_signal + (low_pass_alpha * distance_cm); // smoothen the signal
+  if (abs(distance_cm - prev_signal) > initial_threshold) filtered_signal = distance_cm;      // Account for sudden change; when there's no wall use the raw value to avoid gradual correction of the filtered signal which may cause delay in input to PID
+  else filtered_signal = (1-low_pass_alpha) * prev_signal + (low_pass_alpha * distance_cm);   // Smoothen the signal
   
 #ifndef DEBUG_FILTER
   Serial.print("Filtered: ");
@@ -52,7 +51,7 @@ float apply_low_pass_filter(float distance_cm) {
   return filtered_signal;
 }
 
-/*Arduino On-board memory to store calibrated RGB values*/
+/* Arduino On-board memory to store calibrated RGB values */
 void read_eeprom() {
   int eeAddress = 0;
   
@@ -72,6 +71,7 @@ void read_eeprom() {
   char secondCheck = EEPROM.read(eeAddress + 1);
   char thirdCheck = EEPROM.read(eeAddress + 2);
 
+  // Check sum equivalent: Ensure EEPROM reads correct color range values
   if (firstCheck != 'J' or secondCheck != 'B' or thirdCheck != 'M') {
     Serial.println("Issue retrieving value from EEPROM! Please run calibration again!");
     while(true);

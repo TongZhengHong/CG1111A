@@ -2,7 +2,7 @@
   b_navigation.ino: Motion for the motors, including PID calculation & complex turning algorithms to overcome compound turn andn fringe left turn cases
 */
 
-/*Default motion*/
+/* Default motion */
 void move_forward() {
   left_motor.run(-FORWARD_SPEED + LEFT_DEVIATION);
   right_motor.run(FORWARD_SPEED - RIGHT_DEVIATION);
@@ -28,10 +28,10 @@ void stop_moving() {
   right_motor.stop();
 }
 
-/*PID calculation algorithm*/
+/* PID calculation algorithm */
 float calculate_pid() {
   float wall_dist = get_ultrasonic_distance();
-  float filtered_dist = apply_low_pass_filter(wall_dist);   // smoothen input to reduce jitters?
+  float filtered_dist = apply_low_pass_filter(wall_dist);   // Smoothen input to reduce the impact of noise on D controller
 
   // If wall is not present, return -1
   if (wall_dist == 0.0 or wall_dist > PID_SETPOINT * 1.5) {
@@ -40,15 +40,16 @@ float calculate_pid() {
   }
 
   float pid_error = filtered_dist - PID_SETPOINT; // Calculate PID error
-  /*I gain which is not relevant*/
+
+  /* I gain which is not relevant */
   pid_i_mem += PID_I_GAIN * pid_error;
   if (pid_i_mem > PID_MAX_I) pid_i_mem = PID_MAX_I;
   else if (pid_i_mem < PID_MAX_I * -1) pid_i_mem = PID_MAX_I * -1;
 
-  /*PD gain*/
-  float pid_output = PID_P_GAIN * pid_error + pid_i_mem + PID_D_GAIN * (pid_error - prev_pid_error);  // output takes in P and D correction 
-  if (pid_output > PID_MAX_OUTPUT) pid_output = PID_MAX_OUTPUT;   // prevent overcompensation of error such that speed of motor is exceeded. check...
-  else if (pid_output < PID_MAX_OUTPUT * -1) pid_output = PID_MAX_OUTPUT * -1; // in the reverse direction of overcompensation
+  /* PD gain */
+  float pid_output = PID_P_GAIN * pid_error + pid_i_mem + PID_D_GAIN * (pid_error - prev_pid_error);  // Output takes in P and D correction 
+  if (pid_output > PID_MAX_OUTPUT) pid_output = PID_MAX_OUTPUT;                   // Prevent overcompensation of error such that speed of motor is exceeded. check...
+  else if (pid_output < PID_MAX_OUTPUT * -1) pid_output = PID_MAX_OUTPUT * -1;    // In the reverse direction of overcompensation
 
 #ifndef DEBUG_PID
   Serial.print("PID Output: ");
@@ -59,10 +60,11 @@ float calculate_pid() {
   return pid_output;
 }
 
-/*Complex Turning algorithms*/
+/* Specific turn actions based on color detected */
 void turn_left_time(int duration) {
+  // Move forward slightly before turning left to align closer to the wall
   move_forward();
-  delay(TURN_CORRECTION_TIME_MS);   // move forward slightly before turning left to align closer to the wall
+  delay(TURN_CORRECTION_TIME_MS);  
   
   turn_left();
   delay(duration);
@@ -72,8 +74,9 @@ void turn_left_time(int duration) {
 }
 
 void turn_right_time(int duration) {
+  // Move forward slightly before turning right to align closer to the wall
   move_forward();
-  delay(TURN_CORRECTION_TIME_MS); // move forward slightly before turning right to align closer to the wall
+  delay(TURN_CORRECTION_TIME_MS); 
 
   turn_right();
   delay(duration);

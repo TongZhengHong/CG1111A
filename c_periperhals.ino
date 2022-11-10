@@ -9,14 +9,14 @@ void display_color(int c) {
     {255, 100, 0},  // ORANGE
     {200, 0, 200},  // PURPLE
     {0, 0, 255},    // BLUE
-    {255,255, 255}  // WHITE
+    {255, 255, 255} // WHITE
   };
 
   RGBled.setColor(ledColors[c][R], ledColors[c][G], ledColors[c][B]);
-  RGBled.show();  // show colours on-board arduino
+  RGBled.show();  // Show colours on-board arduino
 }
 
-/*Buzzer note definitions*/
+/* Buzzer note definitions */
 #define NOTE_B0  31
 #define NOTE_C1  33
 #define NOTE_CS1 35
@@ -108,65 +108,51 @@ void display_color(int c) {
 #define NOTE_DS8 4978
 #define REST      0
 
-/*TODO: Buzzer 5 marks!*/
-void checkpoint_sound() {
-  buzzer.tone(262, 250);
-  buzzer.tone(196, 125);
-  buzzer.tone(196, 125);
-  buzzer.tone(220, 250);
-  buzzer.tone(196, 250);
-  buzzer.tone(0, 250);
-  buzzer.tone(247, 250);
-  buzzer.tone(262, 250);
-  buzzer.noTone();
-}
-
 void celebrate() {
-    /*Nokia*/
-    buzzer.tone(NOTE_E5, 100);
-    buzzer.tone(NOTE_D5, 100);
-    buzzer.tone(NOTE_FS4, 200);
-    buzzer.tone(NOTE_GS4, 200);
-    buzzer.tone(NOTE_CS5, 100);
-    buzzer.tone(NOTE_B4, 100);
-    buzzer.tone(NOTE_D4, 200);
-    buzzer.tone(NOTE_E4, 200);
-    buzzer.tone(NOTE_B4, 100);
-    buzzer.tone(NOTE_A4, 100);
-    buzzer.tone(NOTE_CS4, 200);
-    buzzer.tone(NOTE_E4, 200);
-    buzzer.tone(NOTE_A4, 1000);
-    
-  /*MARIO GAME OVER*/
-    buzzer.tone(NOTE_B4, 200);
-    buzzer.tone(NOTE_F5, 300);
-    buzzer.tone(NOTE_F5, 200);
-    buzzer.tone(NOTE_F5, 200);
-    buzzer.tone(NOTE_E5, 200);
-    buzzer.tone(NOTE_D5, 200);
-    buzzer.tone(NOTE_C5, 200);
-    buzzer.tone(NOTE_G4, 100);
-    buzzer.tone(NOTE_E4, 200);
-    buzzer.tone(NOTE_C2, 500);
-    buzzer.tone(REST, 2000);
+  /* Nokia */
+  buzzer.tone(NOTE_E5, 100);
+  buzzer.tone(NOTE_D5, 100);
+  buzzer.tone(NOTE_FS4, 200);
+  buzzer.tone(NOTE_GS4, 200);
+  buzzer.tone(NOTE_CS5, 100);
+  buzzer.tone(NOTE_B4, 100);
+  buzzer.tone(NOTE_D4, 200);
+  buzzer.tone(NOTE_E4, 200);
+  buzzer.tone(NOTE_B4, 100);
+  buzzer.tone(NOTE_A4, 100);
+  buzzer.tone(NOTE_CS4, 200);
+  buzzer.tone(NOTE_E4, 200);
+  buzzer.tone(NOTE_A4, 1000);
 
-    buzzer.tone(NOTE_C5, 200);
-    buzzer.tone(REST, 200);
-    buzzer.tone(NOTE_G4, 200);
-    buzzer.tone(REST, 100);
-    buzzer.tone(NOTE_E4, 200);
-    buzzer.tone(REST, 100);
-    
-    buzzer.tone(NOTE_A4, 300);
-    buzzer.tone(NOTE_B4, 300);
-    buzzer.tone(NOTE_A4, 300);
-    buzzer.tone(NOTE_GS4, 400);
-    buzzer.tone(NOTE_AS4, 400);
-    buzzer.tone(NOTE_G4, 400);
-    buzzer.tone(NOTE_G4, 200);
-    buzzer.tone(NOTE_D4, 200);
-    buzzer.tone(NOTE_E4, 400);
+  /* MARIO GAME OVER */
+  buzzer.tone(NOTE_B4, 200);
+  buzzer.tone(NOTE_F5, 300);
+  buzzer.tone(NOTE_F5, 200);
+  buzzer.tone(NOTE_F5, 200);
+  buzzer.tone(NOTE_E5, 200);
+  buzzer.tone(NOTE_D5, 200);
+  buzzer.tone(NOTE_C5, 200);
+  buzzer.tone(NOTE_G4, 100);
+  buzzer.tone(NOTE_E4, 200);
+  buzzer.tone(NOTE_C2, 500);
+  buzzer.tone(REST, 2000);
 
+  buzzer.tone(NOTE_C5, 200);
+  buzzer.tone(REST, 200);
+  buzzer.tone(NOTE_G4, 200);
+  buzzer.tone(REST, 100);
+  buzzer.tone(NOTE_E4, 200);
+  buzzer.tone(REST, 100);
+
+  buzzer.tone(NOTE_A4, 300);
+  buzzer.tone(NOTE_B4, 300);
+  buzzer.tone(NOTE_A4, 300);
+  buzzer.tone(NOTE_GS4, 400);
+  buzzer.tone(NOTE_AS4, 400);
+  buzzer.tone(NOTE_G4, 400);
+  buzzer.tone(NOTE_G4, 200);
+  buzzer.tone(NOTE_D4, 200);
+  buzzer.tone(NOTE_E4, 400);
 
   buzzer.noTone();
 }
