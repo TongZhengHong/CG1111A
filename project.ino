@@ -22,8 +22,10 @@
 #define TWO_RIGHT_TURN_TIME_MS 630    // Compound turning for Blue Tile
 #define TWO_LEFT_TURN_TIME_MS 580     // Compound turning for Purple Tile, under-turn to maintain readable distance from wall
 
-#define D1 A2
-#define D2 A3
+#define LDR_PIN 0
+#define IR_PIN 1
+#define D1 A2     // 2-to-4 decoder 1A select input
+#define D2 A3     // 2-to-4 decoder 1B select input
 
 /* Initialisation of mBot ports */
 MeBuzzer buzzer;

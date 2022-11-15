@@ -40,7 +40,6 @@ int ledPins[4][2] = { // Logic gate for LED pins
   { LOW, LOW }        // IR sensor
 };
 
-#define LDR_PIN 0
 #define RGBWait 100
 #define LDRWait 10
 #define AVG_READING 5 
@@ -79,7 +78,6 @@ void read_color_sensor() {
 }
 
 /* IR Sensor */
-#define IR_PIN 1
 int get_infrared_distance() {
   // Get average LDR reading
   int total = 0;
