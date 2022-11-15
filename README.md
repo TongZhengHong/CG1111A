@@ -1,33 +1,69 @@
 # The A-maze-ing Race Project [CG1111A]
 Year 1 Semester 1 mBot robot finale project for CG1111A module. 
 
-We are tasked to build a mBot robot that can find its way through a maze in the shortest time. Similar to the TV program, there will be challenges along the way in the form of colored tiles that signify the next direction the robot needs to head towards to complete the maze. There are walls that surround the maze and the robot needs to avoid them while traversing the maze.
+We are tasked to build a mBot robot that can find its way through a maze in the shortest time. Similar to the TV program, there will be challenges along the way in the form of coloured tiles that signify the next direction the robot needs to head towards to complete the maze. There are walls that surround the maze and the robot needs to avoid them while traversing the maze.
 
 Pictures of our mBot project: 
 | ![](images/left-side.jpg) | ![](images/right-side.jpg) |
 |:-:|:-:|
-| Left side (IR sensor) | Right side (ultrasonic sensor) |
+| Left side (IR sensor) | Right side (Ultrasonic sensor) |
 
 ## Installation
-First run `color_calibration.ino` to calibrate the light sensor. You will be instructed to place a white piece of paper followed by a black piece of paper below the mBot. Once calibration is complete, the program will show the raw RGB values it is currently sensing.
 
-Next, run the main program `project.ino`. Other files including `a_utility.ino`, `b_navigation.ino`, `c_periperhals.ino` and `d_sensor.ino` are tabs to the main ino file and should be compiled together. Ensure that they are recognised as tabs for the program to compile correctly. 
+Verify the following connections for the program to run correctly. This program uses A2 and A3 connected to 1A and 1B select inputs of the 2-to-4 decoder. A0 is connected to LDR and A1 is connected to IR detector. The ultrasonic sensor is connected to Port 1 while the line sensor is connected to Port 2. 
 
-## Overview
+Next, run`color_calibration.ino` to calibrate the light sensor. You will be instructed to place a white piece of paper followed by a black piece of paper below the mBot. Once calibration is complete, the program will show the raw RGB values it is currently sensing.
+
+Lastly, run the main program `project.ino`. Other files including `a_utility.ino`, `b_navigation.ino`, `c_periperhals.ino` and `d_sensor.ino` are tabs to the main ino file and should be compiled together. Ensure that they are recognised as tabs for the program to compile correctly. 
+
+## Overview of program
 <div align="center">
 
-![](images/overall.png)
+<img src="images/overall.png" width="800">
+
 *Overall flowchart of our algorithm*
 
 </div>
+
+In order to achieve all the different functions such as moving forward, colour detection and turning, we made used of the `global_state` variable. It will consist of all the possible states the mBot can be in, given by the enum called `Motion`. Initially, the state will be set to `FORWARD` to ensure the mBot moves from the start. 
+
+```c
+enum Motion {
+  TURN_LEFT, TURN_RIGHT, U_TURN, TWO_LEFT, TWO_RIGHT, CHALLENGE, FORWARD, FINISH
+};
+Motion global_state = FORWARD;  // Default state of motion is FORWARD (with PID)
+```
+
+Next, the state will be checked in each iteration of the main loop and the corresponding logic will be executed based on the current state of the mBot. The overall logic flow can be visualised in the flowchart above. 
+
+```c
+void loop() {
+  if (global_state == FORWARD) {
+    float correction = calculate_pid();
+    if (correction == -1) move_forward();             // Applies deviation to the forward if no wall detected (found in b_navigation.ino)
+    else move_forward_correction((int) correction);   // (int) as arduino motor speed is in int
+
+    if (has_reached_waypoint()) {                     // Black line is detected, change state to CHALLENGE (sense the tile)
+      stop_moving();
+      global_state = CHALLENGE;
+    }
+
+  } else if (global_state == CHALLENGE) {
+    ... // Color detection algorithm here
+  } else if (global_state == TURN_LEFT) {
+    ... // Code to turn left (RED)
+  } 
+  ... // Other turn logic below
+}
+```
 
 ## Navigation
 The motors used on the mBot spin with different speeds in the real world due to manufacturing inaccuracies and other environmental factors. In our case, our mBot tends to **deviate left** when both motors are set to the same speed. Hence, our group implemented the **PID control algorithm** to keep the robot straight.
 
 ### Ultrasonic sensor
-Measures the time taken for the ultrasonic waves to travel from the emitter to a surface and back into the receiver. The distance of the surface away from the sensor can be computed by finding the product of half the time taken and the speed of sound (around 340 m/s). The ultrasonic sensor is used with the PID algorithm to maintain a constant distance away from the wall. 
+Measures the time taken for the ultrasonic waves to travel from the emitter to a surface and back into the receiver. The distance of the surface away from the sensor can then be computed. The ultrasonic sensor is used with the PID algorithm to maintain a constant distance away from the wall. 
 
-The position of the ultrasonic sensor on the mBot was crucial because it affected the ability for the robot to identify missing walls. The original mounting position was **too low** and misidentifies the additional edge of the table as a wall when a wall is removed. This causes the PID algorithm to apply unnecessary correction during missing wall segment. To address this issue, the ultrasonic sensor was **mounted higher** which prevented it from detecting additional objects on the field. 
+Our ultrasonic sensor was **mounted higher** to prevent it from detecting additional objects on the field. The original mounting position was **too low** and misidentifies the additional edge of the table as a wall when a wall is removed. This causes the PID algorithm to apply unnecessary correction during missing wall segment. Additionally, mounting higher helped to **reduce the form factor** of the robot, reducing the chance of collision with walls.
 
 ### PID algorithm
 The PID algorithm is a closed feedback control algorithm that aims to maintain a desired state of a system by making corrections based on the feedback it receives from a data source. It is made of 3 components: 
@@ -88,6 +124,38 @@ void move_forward() {
 }
 ```
 
+To tune the PID controller, we set both the I and D gains to 0 and increased the P gain until there is constant oscillations around the setpoint.
+
+<div align="center">
+
+<img src="images/p-gain.png" width="800">
+
+*P-controller only*
+
+</div>
+
+Next, we leave the P-gain and start increasing the D gain. We can see that the introduction of the D controller will help the mBot reach the setpoint albeit with some oscillations around the setpoint.
+
+<div align="center">
+
+<img src="images/small-d-gain.png" width="750">
+
+*PD controller with small D-gain*
+
+</div>
+
+At the optimal D gain, we can see that there is no significant oscillations and overshooting of error. The mBot also converges to the setpoint relatively quickly. 
+
+<div align="center">
+
+<img src="images/optimal-pd.png" width="800">
+
+*PD controller with optimal P and D gains*
+
+</div>
+
+Since there is no persistent error in our system, there is no need to accumulate the error over time and hence the I gain is left at zero.
+
 <div align="center">
 
 | P_gain | I_gain | D_gain |
@@ -137,10 +205,10 @@ if (abs(new_distance - prev_signal) > initial_threshold)
     filtered_signal = new_distance; 
 ```
 
-## Color Detection
+## Colour Detection
 All colours are made of varying amounts of the three primary colours - red, green and blue. A colour of an object can be determined by the amount of red, green and blue light reflected from a particular coloured surface. For example, a red surface will absorb green and blue light and most red light will be reflected for our eyes to detect the surface is red. 
 
-Our colour sensor will measure the intensity of red, green and blue light reflected from the object and determine its colour based on the known characteristic RGB components of light reflected from each of the coloured tiles. (Red, Orange, Purple, Green, Blue and White)
+Our colour sensor consists of a light dependent resistor (LDR) which will measure the intensity of red, green and blue light reflected from the tile.  The colour of the tile is determined by comparing against the known characteristic RGB light reflected from each of the possible coloured tiles. (Red, Orange, Purple, Green, Blue and White)
 
 ### Hardware
 In this project, we built a colour sensor using three separate LEDs, an LDR and a 2-to-4 decoder.
@@ -169,22 +237,68 @@ In this project, we built a colour sensor using three separate LEDs, an LDR and 
 
 </div>
 
+The RGB readings of the colour sensor would change drastically when tested on different fields. This is likely because the components of the colour sensing circuit is not properly secured and the LEDs and LDR would shift slightly when we brought the mBot around. 
+
+To fix this, we built a cylinder around the LDR and then surrounded it with the 3 LEDs and another cylinder around everything. The LEDs were made shorter to prevent movement. Together this ensures that the LEDs will be firmly secured to the LDR, reducing the possibility of movement. Additionally, this serves to block out ambient light which increases the reliability of colour detection. 
+
+<div align="center">
+
+<img src="images/under-side.jpg" width="500">
+
+*Underside of robot with colour detection circuit and setup*
+
+</div>
+
 ### Software Implementation
+
+The raw reflected red, green and blue light read from the LDR and will be stored in a global integer array currentColor[3] (0 = Red, 1 = Green, 2 = Blue).
 
 <div align="center">
 
 <img src="images/color-sensing-flowchart.png" width="600">
 
-*Flowchart for color recognition*
+*Flowchart for colour recognition*
 
 </div>
+
+1. Firstly, we check if the tile is **white** since white should have around **max values** for *all* RGB components as it should reflect all colours of light. Hence we check if reflected red, green and blue values are greater than `WHITE_THRESHOLD` (200).
+
+2. Next, we noticed that the reflected red light is much greater for red and orange tiles as compared to green, blue and purple tiles. Thus, if the tile is not white, we move on to check if reflected red is greater than `RED_THRESHOLD` (200). If true, the tile is either *red* or *orange*, else the tile is either *green*, *blue* or *purple*.
+
+    1. **Red and Orange** 
+
+        Between red and orange, we observed that the reflected green light is greater for an orange tile than a red tile since red colour should mostly reflect red light. Hence, we further check if green is greater than `RED_ORANGE_THRESHOLD` (120). If true, the tile is **orange**, else the tile is **red**.
+
+    2. **Purple, Green and Blue**
+
+        We realised that purple tiles should have more reflected red light as compared to blue and green tiles. Hence we check if reflected red is greater than green reflected light. 
+        
+        However, under dimmer ambient light conditions, there might be more green light reflected than red. Regardless, the amount of red and green light reflected is very similar for purple tile.
+
+        Hence, we check if firstly there is more red than green light reflected. If that is not the case, we check if  the percentage difference between green and red is smaller than  `PURPLE_BLUEGREEN_THRESHOLD` (20%). If either condition is true, the tile below is **purple**.
+
+        - **Green and Blue**
+
+            Blue tiles will have more blue light reflected while green tiles will have more green light reflected. Thus we simply check if reflected green is greater blue. If there is more green than blue reflected light, the tile is **green**, else the tile is **blue**.
 
 ### Storing calibrated values in EEPROM
 The calibrated balanceArray is stored on the EEPROM, which can be likened to the mBot’s onboard memory. This allows us to store the black RGB values and the (white - black) range RGB values from colour calibration to the mBot. This eliminates the need to manually insert those calibrated values into the main project project code which is inefficient and prone to error. At the start of the main program, the values of balanceArray will be retrieved programmatically from the EEPROM. 
 
 ## Limitations
 
+We did not implement the IR sensor due to the lack of reliable readings from the sensor. We were not able to get consistent analog readings and thus we decided to spend more time enhancing the robustness of our colour sensor and PID algorithm. 
+
+- Colour sensor: Must be consistent at all times regardless of ambient light conditions to correctly identify the next turn to perform to traverse the maze successfully. 
+
+- PID algorithm: Must be able to keep the robot straight just using the right wall. Any deviations must be corrected relatively quickly so that the robot does not veer off and hit a wall. 
+
+By ensuring the reliability of both the colour sensor and PID algorithm, eliminate the need of the IR sensor on the left and traverse the maze without collision with walls. 
+
+However, there are very few edge cases where the robot will veer off course and an IR sensor would have helped completely eliminate such issues. Perhaps if there was more time, we could have implemented the IR circuit properly into our robot. 
+
 ### Infrared sensor
+
+The IR circuit that we tested and implemented is as follows: 
 
 <div align="center">
 
