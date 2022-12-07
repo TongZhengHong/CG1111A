@@ -100,6 +100,6 @@ There are a few edge cases where the robot will veer off course and an IR sensor
           <p>Somehow the PID algorithm is able to navigate the maze even when there are no walls. It does so by applying corrections to the robot's movements by detecting the distance away from the pillars on the field.</p>
      </div>
      <div style="flex:1;padding-left:10px;">
-          <video src="images/no-walls.mp4" width=240/>
+          <video src="images/no-walls.mp4" width=240></video>
      </div>
 </div>
