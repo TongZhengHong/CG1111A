@@ -21,7 +21,9 @@ Our robot is tasked to navigate through a maze similar to the one shown below. I
 
 </div>
 
-While navigating the maze, a waypoint challenge will be indicated with a **black strip** on the maze floor. A waypoint challenge is simply a colored tile on the floor. There are 5 different possible colors, red, orange, green, blue and purple. Each color represents a type of turn  the robot needs to execute to correctly traverse the maze. 
+While navigating the maze, a waypoint challenge will be indicated with a **black strip** on the maze floor. A waypoint challenge is simply a colored tile on the floor. There are 5 different possible colors, **red**, **orange**, **green**, **blue** and **purple**. Each color represents a type of turn  the robot needs to execute to correctly traverse the maze. 
+
+At the end of the maze, the colour of the paper underneath the mBot at the waypoint challenge will be **white** to signify the end.
 
 <div align="center">
 
@@ -78,8 +80,8 @@ A brief description of the sensors used in our implementation is as follows:
 
 | Sensor | Purpose |
 |:-------|:--------|
-| Ultrasonic sensor | Mounted on the **right** side of mBot intended to detect proximity to walls on the right. However, as the IR sensor was not used, we implemented the PID algorithm to ensure the robot maintains a ideal distance of 10 cm away from the right wall. The distance measured by the ultrasonic sensor was used as input to the PID algorithm. <br /> A digital low-pass filter was implemented to reduce noise in the ultrasonic readings to further improve the performance of the PID algorithm. |
-| mBot line follower | Mounted at the **front** of mBot **facing downwards** to detect black line on the floor which indicates the location of a waypoint challenge |
+| Ultrasonic sensor | Mounted on the **right** side of mBot intended to detect proximity to walls on the right. However, as the IR sensor was not used, we implemented the **PID algorithm** to ensure the robot maintains a ideal distance of **10 cm** away from the right wall. The distance measured by the ultrasonic sensor was used as input to the PID algorithm. <br /> A **digital low-pass filter** was implemented to reduce noise in the ultrasonic readings to further improve the performance of the PID algorithm. |
+| mBot line follower | Mounted at the **front** of mBot **facing downwards** to detect the black line on the floor which indicates the presence of a waypoint challenge |
 | Custom color sensor | Mounted at the **bottom** of mBot **facing downwards** to identify the color of the tile at a waypoint challenge. The corresponding turn can then be executed to navigate the maze. <ul><li>Made out of red (R), green (G) and blue (B) LEDs and a Light dependent resistor. Each LED will be lit up for **100 ms** and the LDR measures the intensity of reflected light for each color.</li><li>The color of the surface can be identified by comparing the intensities of reflected R, G and B light with a set of predetermined conditions based on the characteristics of each colored surface.</li><li>A black skirt is added around the LEDs and LDR to block out ambient light that could potentially add noise to the measurements. </li></ul> |
 | Infrared sensor | Intended to detect left wall but not used due to [lack of reliability](#limitations) |
 
@@ -89,17 +91,12 @@ The full explanation of our robot implementation can be viewed in our group repo
 
 ## Limitations
 
-We did not implement the IR sensor due to the lack of reliable readings from the sensor. We decided to focus on improving the robustness of our colour sensor and PID algorithm. 
+We did not implement the IR sensor due to the **lack of reliable readings** from the sensor. We decided to focus on improving the robustness of our colour sensor and PID algorithm. 
 
 There are a few edge cases where the robot will veer off course and an IR sensor would have helped completely eliminate such issues. Perhaps if there was more time, we could have implemented the IR circuit properly into our robot. 
 
 ## No walls? No problem!
 
-<div style="display:flex;">
-     <div style="flex:3">
-          <p>Somehow the PID algorithm is able to navigate the maze even when there are no walls. It does so by applying corrections to the robot's movements by detecting the distance away from the pillars on the field.</p>
-     </div>
-     <div style="flex:1;padding-left:10px;">
-          <video src="https://user-images.githubusercontent.com/20199469/206158900-2b9fe33c-d280-4145-bae2-6a3bd8c9a8fb.mp4" width=240></video>
-     </div>
-</div>
+Somehow the PID algorithm is able to navigate the maze even when there are no walls. It does so by applying corrections to the robot's movements when the ultrasonic sensor detects the pillars on the field.
+
+<video src="https://user-images.githubusercontent.com/20199469/206158900-2b9fe33c-d280-4145-bae2-6a3bd8c9a8fb.mp4" width=240></video>
