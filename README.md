@@ -99,4 +99,8 @@ There are a few edge cases where the robot will veer off course and an IR sensor
 
 Somehow the PID algorithm is able to navigate the maze even when there are no walls. It does so by applying corrections to the robot's movements when the ultrasonic sensor detects the pillars on the field.
 
-<video src="https://user-images.githubusercontent.com/20199469/206158900-2b9fe33c-d280-4145-bae2-6a3bd8c9a8fb.mp4" width=240></video>
+https://github.com/TongZhengHong/CG1111A/assets/20199469/20429c84-c9a6-4a4f-a7e8-5607ba8f43d8
+
+
+
+
